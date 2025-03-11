@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace cat.itb.M6NF2EA1.Cruds
 {
@@ -19,17 +21,15 @@ namespace cat.itb.M6NF2EA1.Cruds
 			var SQL = "DELETE FROM alumnos Where dni = @dni";
 			using var cmd = new NpgsqlCommand(SQL, conn);
 
+			cmd.Parameters.AddWithValue("dni", alumnoDNI);
 			cmd.ExecuteNonQuery();
 
 			Console.WriteLine("row deleted");
 			conn.Close();
 		}
+
 		public void InsertAlumnos(
-			string dni,
-			string name,
-			string addres,
-			string pobla,
-			string cellphone
+			List<List<string>> alumnos
 			)
 		{
 			CloudConnection db = new();
@@ -38,21 +38,18 @@ namespace cat.itb.M6NF2EA1.Cruds
 			var SQL = "INSERT INTO alumnos(dni, apenom, direc, pobla, telef) VALUES(@dni, @apenom, @direc, @pobla, @telef)";
 			using var cmd = new NpgsqlCommand( SQL, conn );
 
-			cmd.Parameters.AddWithValue("dni", dni);
-			cmd.Parameters.AddWithValue("apenom", name);
-			cmd.Parameters.AddWithValue("direc", addres);
-			cmd.Parameters.AddWithValue("pobla", pobla);
-			cmd.Parameters.AddWithValue("telef", cellphone);
+			foreach ( var item in alumnos )
+			{
+				cmd.Parameters.AddWithValue("dni", item[0]);
+				cmd.Parameters.AddWithValue("apenom", item[1]);
+				cmd.Parameters.AddWithValue("direc", item[2]);
+				cmd.Parameters.AddWithValue("pobla", item[3]);
+				cmd.Parameters.AddWithValue("telef", item[4]);
 
-			cmd.Prepare();
-			if (cmd.ExecuteNonQuery() != 0)
-			{
-				Console.WriteLine($"Usuario con dni {dni} creado");
+				cmd.ExecuteNonQuery();
+				cmd.Parameters.Clear();
 			}
-			else
-			{
-				Console.WriteLine($"Usuario no creado");
-			}
+			conn.Close();
 		}
 
         public void GetAlumnoByDNI(string alumnoDNI)
