@@ -13,6 +13,36 @@ namespace cat.itb.M6NF2EA1.Cruds
 {
     public class AlumnosCRUD
     {
+		public void UpdateAlumno(string alumnoDNI, string newTelef)
+		{
+			CloudConnection db = new();
+			NpgsqlConnection conn = db.GetConnection();
+
+			var SQL = "UPDATE alumnos SET telef = @newTelef WHERE dni = @alumnoDNI";
+			using var cmd = new NpgsqlCommand(SQL, conn);
+
+			cmd.Parameters.AddWithValue("alumnoDNI", alumnoDNI);
+			cmd.Parameters.AddWithValue("newTelef", newTelef);
+
+			cmd.Prepare();
+			cmd.ExecuteNonQuery();
+			conn.Close();
+		}
+
+		public void DeleteAlumnoPobla(string pobla)
+		{
+            CloudConnection db = new();
+            NpgsqlConnection conn = db.GetConnection();
+
+            var SQL = "DELETE FROM alumnos Where pobla = @pobla";
+            using var cmd = new NpgsqlCommand(SQL, conn);
+
+            cmd.Parameters.AddWithValue("pobla", pobla);
+            cmd.ExecuteNonQuery();
+
+            Console.WriteLine("row deleted");
+            conn.Close();
+        }
 		public void DeleteAlumnoByDNI(string alumnoDNI)
 		{
 			CloudConnection db = new();

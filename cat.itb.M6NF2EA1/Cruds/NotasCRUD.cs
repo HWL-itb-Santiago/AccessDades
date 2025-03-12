@@ -10,6 +10,54 @@ namespace cat.itb.M6NF2EA1.Cruds
 {
     public class NotasCRUD
     {
+
+		public void UpdateNotas(string name, int newNota)
+		{
+			CloudConnection db = new();
+			NpgsqlConnection conn = db.GetConnection();
+
+			var SQL_FOL = "UPDATE notas SET nota = @newNota WHERE dni = (" +
+                "SELECT dni FROM alumnos WHERE apenom = @name" +
+				") AND (cod = 4 OR cod = 5)";
+			using var cmd_FOL = new NpgsqlCommand(SQL_FOL, conn);
+			cmd_FOL.Parameters.AddWithValue("newNota", newNota);
+			cmd_FOL.Parameters.AddWithValue("name", name);
+
+			cmd_FOL.Prepare();
+			cmd_FOL.ExecuteNonQuery();
+			conn.Close();
+		}
+		public void InsertNotas(List<string> alumnosDNI, int nota)
+		{
+			CloudConnection db = new();
+			NpgsqlConnection conn = db.GetConnection();
+
+			var SQL_FOL = "INSERT INTO notas(dni, cod, nota) VALUES(@dni, 4, @nota)";
+			using var cmd_FOL = new NpgsqlCommand(SQL_FOL, conn);
+
+			foreach (var item in alumnosDNI)
+			{
+				cmd_FOL.Parameters.AddWithValue("dni", item);
+				cmd_FOL.Parameters.AddWithValue("nota", nota);
+
+				cmd_FOL.ExecuteNonQuery();
+				cmd_FOL.Parameters.Clear();
+			}
+
+            var SQL_RET = "INSERT INTO notas(dni, cod, nota) VALUES(@dni, 5, @nota)";
+            using var cmd_RET = new NpgsqlCommand(SQL_RET, conn);
+
+            foreach (var item in alumnosDNI)
+            {
+                cmd_RET.Parameters.AddWithValue("dni", item);
+                cmd_RET.Parameters.AddWithValue("nota", nota);
+
+                cmd_RET.ExecuteNonQuery();
+                cmd_RET.Parameters.Clear();
+            }
+			conn.Close();
+        }
+
         public void GetAllNotas()
         {
             CloudConnection db = new();
