@@ -4,15 +4,16 @@ public class Program
 {
     static void Main(string[] args)
 	{
-        List<string> alumno1 = new List<string> { "11101", "santiago", "riera blanca", "Barcelona", "678758521" };
-        List<string> alumno2 = new List<string> { "22210", "prachi", "riera blanca", "Barcelona", "678857545" };
-        List<string> alumno3 = new List<string> { "33310", "tasnim", "santa coloma", "Barcelona", "578451264" };
-        AlumnosCRUD crudAlumnos = new AlumnosCRUD();
+        List<string> alumno1 = ["11101", "santiago", "riera blanca", "Barcelona", "678758521"];
+        List<string> alumno2 = ["22210", "prachi", "riera blanca", "Barcelona", "678857545"];
+        List<string> alumno3 = ["33310", "tasnim", "santa coloma", "Barcelona", "578451264"];
+        AlumnosCRUD crudAlumnos = new();
         NotasCRUD crudNotas = new();
         GeneralCRUD generalCRUD = new();
         int option = 1;
 
-        while (true)
+        generalCRUD.CreateTables();
+        while (option != -1)
         {
             option = 0;
             Console.Clear();
@@ -25,11 +26,12 @@ public class Program
             Console.WriteLine("6.- Modificar les notes de l’alumne \"Cerrato Vela, Luis\" de FOL i RET, ha tret un 9.");
             Console.WriteLine("7.- Modificar el teléfon de l’alumne amb DNI = 12344345, el nou teléfon és 934885237.");
             Console.WriteLine("8.- Eliminar l’alumne que viu a \"Mostoles\".");
-            Console.WriteLine("9 - Delete Tables");
-            Console.WriteLine("0 - Create Tables");
+            Console.WriteLine("9 - Reset Tables");
+            Console.WriteLine("0 - Salir");
+            //Console.WriteLine("0 - Create Tables");
             Console.WriteLine("Ingrese la opcion a desear: ");
             // Correct input reading
-            string input = Console.ReadLine();
+            string? input = Console.ReadLine();
             if (!int.TryParse(input, out option))
             {
                 Console.WriteLine("Por favor ingrese una opción válida.");
@@ -37,10 +39,16 @@ public class Program
             }
             switch (option)
             {
+                case 0:
+                    {
+                        option = -1;
+                        break;  
+                    }
                 case 1:
                     {
                         Console.Clear();
                         crudAlumnos.GetAllAlumnos();
+                        Console.Read();
                         ClearBuffer();
                         break;
                     }
@@ -104,16 +112,13 @@ public class Program
                     {
                         Console.Clear();
                         generalCRUD.DeleteTables();
+                        generalCRUD.CreateTables();
                         Console.Read();
                         ClearBuffer();
                         break;
                     }
                 case 10:
                     {
-                        Console.Clear();
-                        generalCRUD.CreateTables();
-                        Console.Read();
-                        ClearBuffer();
                         break;
                     }
             }

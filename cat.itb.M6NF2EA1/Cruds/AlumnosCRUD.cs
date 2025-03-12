@@ -25,8 +25,12 @@ namespace cat.itb.M6NF2EA1.Cruds
 			cmd.Parameters.AddWithValue("newTelef", newTelef);
 
 			cmd.Prepare();
-			cmd.ExecuteNonQuery();
-			conn.Close();
+            if (cmd.ExecuteNonQuery() != 0)
+            {
+                Console.WriteLine("Alumno modificado con éxito!\n");
+				GetAllAlumnos();
+            }
+            conn.Close();
 		}
 
 		public void DeleteAlumnoPobla(string pobla)
@@ -38,10 +42,12 @@ namespace cat.itb.M6NF2EA1.Cruds
             using var cmd = new NpgsqlCommand(SQL, conn);
 
             cmd.Parameters.AddWithValue("pobla", pobla);
-            cmd.ExecuteNonQuery();
-
-            Console.WriteLine("row deleted");
-            conn.Close();
+            cmd.Prepare();
+            if (cmd.ExecuteNonQuery() != 0)
+				Console.WriteLine("Alumno eliminado con éxito");
+			else
+				Console.WriteLine("El alumno no existe");
+				conn.Close();
         }
 		public void DeleteAlumnoByDNI(string alumnoDNI)
 		{
@@ -52,10 +58,12 @@ namespace cat.itb.M6NF2EA1.Cruds
 			using var cmd = new NpgsqlCommand(SQL, conn);
 
 			cmd.Parameters.AddWithValue("dni", alumnoDNI);
-			cmd.ExecuteNonQuery();
-
-			Console.WriteLine("row deleted");
-			conn.Close();
+            cmd.Prepare();
+            if (cmd.ExecuteNonQuery() != 0)
+                Console.WriteLine("Alumno eliminado con éxito");
+            else
+                Console.WriteLine("El alumno no existe");
+            conn.Close();
 		}
 
 		public void InsertAlumnos(
@@ -70,14 +78,20 @@ namespace cat.itb.M6NF2EA1.Cruds
 
 			foreach ( var item in alumnos )
 			{
-				cmd.Parameters.AddWithValue("dni", item[0]);
-				cmd.Parameters.AddWithValue("apenom", item[1]);
-				cmd.Parameters.AddWithValue("direc", item[2]);
-				cmd.Parameters.AddWithValue("pobla", item[3]);
-				cmd.Parameters.AddWithValue("telef", item[4]);
+				try
+				{
+                    cmd.Parameters.AddWithValue("dni", item[0]);
+                    cmd.Parameters.AddWithValue("apenom", item[1]);
+                    cmd.Parameters.AddWithValue("direc", item[2]);
+                    cmd.Parameters.AddWithValue("pobla", item[3]);
+                    cmd.Parameters.AddWithValue("telef", item[4]);
 
-				cmd.ExecuteNonQuery();
-				cmd.Parameters.Clear();
+                    cmd.Prepare();
+                    if (cmd.ExecuteNonQuery() != 0)
+                        Console.WriteLine($"Alumno {item[1]} agregado con éxito");
+                    cmd.Parameters.Clear();
+                }
+				catch ( Exception ex ) { Console.WriteLine("Error al ingresar el alumno, revise que no esté previamente en la tabla"); }
 			}
 			conn.Close();
 		}
@@ -93,8 +107,12 @@ namespace cat.itb.M6NF2EA1.Cruds
             cmd.Parameters.AddWithValue("dni", alumnoDNI);
             cmd.Prepare();
 
-            using NpgsqlDataReader dataReader = cmd.ExecuteReader();
-			printAlumnosData(dataReader);
+            try
+			{
+				using NpgsqlDataReader dataReader = cmd.ExecuteReader();
+                printAlumnosData(dataReader);
+            }
+			catch ( Exception ex ) { Console.WriteLine(ex.Message); }
 			conn.Close();
         }
 
@@ -106,8 +124,13 @@ namespace cat.itb.M6NF2EA1.Cruds
 			var SQL = "SELECT * FROM alumnos";
 			using var cmd = new NpgsqlCommand(SQL, conn);
 
-			using NpgsqlDataReader dataReader = cmd.ExecuteReader();
-			printAlumnosData(dataReader);
+
+            try
+            {
+                using NpgsqlDataReader dataReader = cmd.ExecuteReader();
+                printAlumnosData(dataReader);
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
 			conn.Close();
 		}
 

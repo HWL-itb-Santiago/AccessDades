@@ -24,7 +24,10 @@ namespace cat.itb.M6NF2EA1.Cruds
 
                 using var cmd = new NpgsqlCommand(createCommand, conn);
 
-                cmd.ExecuteNonQuery();
+                if (cmd.ExecuteNonQuery() != 0)
+                {
+                    Console.WriteLine("Tablas Creadas con éxito");
+                }
                 conn.Close();
             }
             catch (IOException e)
@@ -42,7 +45,10 @@ namespace cat.itb.M6NF2EA1.Cruds
             var SQL = "DROP TABLE alumnos, notas, asignaturas";
             using var cmd = new NpgsqlCommand(SQL, conn);
 
-            cmd.ExecuteNonQuery();
+            if (cmd.ExecuteNonQuery() != 0)
+            {
+                Console.WriteLine("Tablas Eliminadas con éxito");
+            }
             conn.Close();
         }
     }

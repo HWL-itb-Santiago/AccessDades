@@ -24,8 +24,14 @@ namespace cat.itb.M6NF2EA1.Cruds
 			cmd_FOL.Parameters.AddWithValue("name", name);
 
 			cmd_FOL.Prepare();
-			cmd_FOL.ExecuteNonQuery();
-			conn.Close();
+            if (cmd_FOL.ExecuteNonQuery() != 0)
+            {
+                Console.WriteLine("notas modificadas con éxito!\n");
+                GetAllNotas();
+            }
+            else
+                Console.WriteLine("No se pudo modificar la nota");
+                conn.Close();
 		}
 		public void InsertNotas(List<string> alumnosDNI, int nota)
 		{
@@ -37,11 +43,18 @@ namespace cat.itb.M6NF2EA1.Cruds
 
 			foreach (var item in alumnosDNI)
 			{
-				cmd_FOL.Parameters.AddWithValue("dni", item);
-				cmd_FOL.Parameters.AddWithValue("nota", nota);
+				try
+				{
+                    cmd_FOL.Parameters.AddWithValue("dni", item);
+                    cmd_FOL.Parameters.AddWithValue("nota", nota);
 
-				cmd_FOL.ExecuteNonQuery();
-				cmd_FOL.Parameters.Clear();
+                    cmd_FOL.Prepare();
+                    if (cmd_FOL.ExecuteNonQuery() != 0)
+                        Console.WriteLine($"Alumno {item[1]} agregado con éxito");
+                    cmd_FOL.Parameters.Clear();
+                }
+				catch(Exception ex) { Console.WriteLine(ex.Message); }
+
 			}
 
             var SQL_RET = "INSERT INTO notas(dni, cod, nota) VALUES(@dni, 5, @nota)";
@@ -49,11 +62,17 @@ namespace cat.itb.M6NF2EA1.Cruds
 
             foreach (var item in alumnosDNI)
             {
-                cmd_RET.Parameters.AddWithValue("dni", item);
-                cmd_RET.Parameters.AddWithValue("nota", nota);
+                try
+                {
+                    cmd_RET.Parameters.AddWithValue("dni", item);
+                    cmd_RET.Parameters.AddWithValue("nota", nota);
 
-                cmd_RET.ExecuteNonQuery();
-                cmd_RET.Parameters.Clear();
+                    cmd_RET.Prepare();
+                    if (cmd_RET.ExecuteNonQuery() != 0)
+                        Console.WriteLine($"Alumno {item[1]} agregado con éxito");
+                    cmd_RET.Parameters.Clear();
+                }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
             }
 			conn.Close();
         }
@@ -65,9 +84,14 @@ namespace cat.itb.M6NF2EA1.Cruds
 			var SQL = "SELECT * FROM notas";
 			using var cmd = new NpgsqlCommand(SQL, conn);
 
-			using NpgsqlDataReader dataReader = cmd.ExecuteReader();
-			printNotasData(dataReader);
-			conn.Close();
+
+            try
+            {
+                using NpgsqlDataReader dataReader = cmd.ExecuteReader();
+                printNotasData(dataReader);
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            conn.Close();
 		}
 
 		public void GetNotasByDNI(string alumnoDNI)
@@ -81,9 +105,13 @@ namespace cat.itb.M6NF2EA1.Cruds
 			cmd.Parameters.AddWithValue("dni", alumnoDNI);
 			cmd.Prepare();
 
-			NpgsqlDataReader dataReader = cmd.ExecuteReader();
-			printNotasData(dataReader);
-			conn.Close();
+            try
+            {
+                using NpgsqlDataReader dataReader = cmd.ExecuteReader();
+                printNotasData(dataReader);
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            conn.Close();
 		}
 
 		public void printNotasData(NpgsqlDataReader dataReader)
